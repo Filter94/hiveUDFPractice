@@ -4,8 +4,8 @@ import org.apache.hadoop.hive.ql.exec.{UDFArgumentLengthException, UDFArgumentTy
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF
 import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector.PrimitiveCategory
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory
-import org.apache.hadoop.hive.serde2.objectinspector.{ObjectInspector, PrimitiveObjectInspector}
-import org.apache.hadoop.io.{BooleanWritable, Text}
+import org.apache.hadoop.hive.serde2.objectinspector.{ObjectInspector, ObjectInspectorConverters, PrimitiveObjectInspector}
+import org.apache.hadoop.io.BooleanWritable
 
 import scala.math.Integral.Implicits._
 
@@ -51,9 +51,11 @@ private[udf] object SubNet {
 }
 
 class SubNet extends GenericUDF {
-  private val resultBoolean = new BooleanWritable
+  private val result: BooleanWritable = new BooleanWritable()
+  private var converters: Array[ObjectInspectorConverters.Converter] = _
 
-  override def getDisplayString(children: Array[String]): String = getStandardDisplayString("in_sub_net", children)
+  override def getDisplayString(children: Array[String]): String =
+    getStandardDisplayString("in_sub_net", children)
 
   override def initialize(arguments: Array[ObjectInspector]): PrimitiveObjectInspector = {
     if (arguments.length != 2)
@@ -66,20 +68,25 @@ class SubNet extends GenericUDF {
             "Argument #%d to IpToNet should be String but %s is found."
               .format(i, argType))
     }
+    converters = new Array[ObjectInspectorConverters.Converter](arguments.length)
+    converters = arguments.map{ arg =>
+      ObjectInspectorConverters.getConverter(arg, PrimitiveObjectInspectorFactory.writableStringObjectInspector)
+    }
     PrimitiveObjectInspectorFactory.getPrimitiveWritableObjectInspector(PrimitiveCategory.BOOLEAN)
   }
 
 
   override def evaluate(arguments: Array[GenericUDF.DeferredObject]): BooleanWritable = {
-    val ipOrNet: String = arguments(0).get.asInstanceOf[Text].toString
-    val net: String = arguments(1).get.asInstanceOf[Text].toString
+    val ipOrNet: String = converters(0).convert(arguments(0).get()).toString
+    val net: String = converters(1).convert(arguments(1).get()).toString
+
     if (ipOrNet.indexOf('/') > 0) {
-      resultBoolean.set(SubNet.subnetOfSubnet(ipOrNet, net))
-      resultBoolean
+      result.set(SubNet.subnetOfSubnet(ipOrNet, net))
+      result
     }
     else {
-      resultBoolean.set(SubNet.ipInSubnet(ipOrNet, net))
-      resultBoolean
+      result.set(SubNet.ipInSubnet(ipOrNet, net))
+      result
     }
   }
 }
