@@ -29,9 +29,13 @@ case class Net(net: Int, mask: Int)
 class NetStringToStructSimple extends UDF {
   def evaluate(net: String): Net = {
     val slashPos = net.indexOf('/')
-    val ipString = net.substring(0, slashPos)
-    val maskLength = net.substring(slashPos + 1).toInt
-    val mask = NetStringToStructSimple.generateMask(maskLength)
-    Net(IpStringToIntSimple().evaluate(ipString) & mask, mask)
+    if (slashPos > 0) {
+      val ipString = net.substring(0, slashPos)
+      val maskLength = net.substring(slashPos + 1).toInt
+      val mask = NetStringToStructSimple.generateMask(maskLength)
+      Net(IpStringToIntSimple().evaluate(ipString) & mask, mask)
+    } else {
+      Net(0, 0)
+    }
   }
 }
