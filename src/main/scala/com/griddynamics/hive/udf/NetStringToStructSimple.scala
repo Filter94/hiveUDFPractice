@@ -24,8 +24,6 @@ object NetStringToStructSimple {
   }
 }
 
-case class Net(net: Int, mask: Int)
-
 class NetStringToStructSimple extends UDF {
   def evaluate(net: String): Net = {
     val slashPos = net.indexOf('/')

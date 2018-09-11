@@ -10,7 +10,8 @@ group by t.country_name
 order by country_spent desc
 limit 10
 
---  3000 56
+--  3000  56
 --  10000 1:05
 --  20000 1:20
---  50000 1:25
+--  33724 1:25
+--  50000 1:42

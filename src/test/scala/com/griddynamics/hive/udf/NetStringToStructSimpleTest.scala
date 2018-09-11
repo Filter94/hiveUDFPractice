@@ -33,7 +33,7 @@ class NetStringToStructSimpleTest extends FunSuite{
     assert(testedObject.evaluate("126.123.111.23/3").mask ==  Integer.parseUnsignedInt("11100000000000000000000000000000", 2))
     assert(testedObject.evaluate("126.123.111.23/10").mask == Integer.parseUnsignedInt("11111111110000000000000000000000", 2))
     assert(testedObject.evaluate("126.123.111.23/16").mask == Integer.parseUnsignedInt("11111111111111110000000000000000", 2))
-    assert(testedObject.evaluate("0.0.111.23/32").mask == Integer.parseUnsignedInt("11111111111111111111111111111111", 2))
+    assert(testedObject.evaluate("0.0.111.23/32").mask ==     Integer.parseUnsignedInt("11111111111111111111111111111111", 2))
   }
   
   test("It does not fall on invalid input") {
