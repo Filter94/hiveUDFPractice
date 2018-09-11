@@ -9,7 +9,7 @@ object IpStringToIntSimple {
 class IpStringToIntSimple extends UDF {
   def evaluate(ip: String): Int = {
     val ipPortions = ip.split("\\.")
-    ipPortions.foldLeft(0xB) {
+    ipPortions.foldLeft(0) {
       case (acc, next) =>
         (acc << 8) + next.toInt
     }
