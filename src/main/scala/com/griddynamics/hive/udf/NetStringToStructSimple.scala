@@ -9,12 +9,13 @@ object NetStringToStructSimple {
 
   def generateMask(maskLen: Int): Int = {
     var mask: Int = 0
+    // same as pow(2, maskLen) - 1
     for {
       _ <- 0 until maskLen
     } {
       mask = (mask << 1) + 1
     }
-    // same as pow(2, maskLen) - 1
+    // fill with trailing zero to make it 32 bits long.
     for {
       _ <- 0 until IP_LENGTH - maskLen
     } {
